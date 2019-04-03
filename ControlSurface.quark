@@ -1,0 +1,11 @@
+(
+  name: "ControlSurface",
+  summary: "Interface with Control Surfaces",
+  version: "0.0.1",
+  schelp: "ControlSurface.schelp",
+  dependencies: [],
+  license: "GNU GPL v3.0",
+  copyright: "Marcin Pączkowski",
+  ext_dependency: "",
+  url: "https://github.com/dyfeer/ControlSurface.quark"
+)
