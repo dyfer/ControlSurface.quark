@@ -15,4 +15,4 @@ Planned support:
 ### Installation
 
 Open up SuperCollider and evaluate the following line of code:
-`Quarks.install("https://github.com/dyfeer/ControlSurface.quark")`
+`Quarks.install("https://github.com/dyfer/ControlSurface.quark")`
