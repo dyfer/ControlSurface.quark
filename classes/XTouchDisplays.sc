@@ -3,9 +3,6 @@ XTouchSysexComponent : ControlSurfaceSysexComponent {
 	var <>post = false;
 	var <modelIDdict;
 	var <modelName;
-	//sysex stuff
-	var <sysexStart, <sysexHeader, <sysexEnd;
-	// this is a normal constructor method
 	*new { | modelName | //model name can be a symbol, or a number to sue directly
 		^super.new.initComponent( modelName );
 	}
@@ -84,7 +81,7 @@ XTouchLCD : XTouchSysexComponent {
 	prUpdate {
 		var data;
 		// "this.prPrepareColorAndInvertData: ".post; this.prPrepareColorAndInvertData.asHexString.postln;
-		data = componentID.asArray ++ lcdID.asArray ++ this.prPrepareColorAndInvertData ++ string.padRight(numberOfCharactersOnTheDisplay, " ").ascii;
+		data = componentID.asArray ++ lcdID.asArray ++ this.prPrepareColorAndInvertData ++ string.padRight(numberOfCharactersOnTheDisplay, " ").ascii[0..(numberOfCharactersOnTheDisplay-1)];
 		this.sendSysex(data);
 	}
 
@@ -244,7 +241,7 @@ XTouch7segment : XTouchSysexComponent {
 		var allCodes, allPeriods, periodArrays, stringCodesWithPeriods;
 		string = str;
 		allCodes = codes.fromString(string);
-		"allCodes: ".post; allCodes.postln;
+		// "allCodes: ".post; allCodes.postln;
 		// combine periods with previous character
 		// indices of characters that are not period
 		stringCodesWithPeriods = List(); //period combined with previous character
@@ -256,8 +253,8 @@ XTouch7segment : XTouchSysexComponent {
 					//if we get period code, then
 					//remove period bit, just in case it was there
 					//ten add period bit
-					"adding period".postln;
-					stringCodesWithPeriods.postln;
+					// "adding period".postln;
+					// stringCodesWithPeriods.postln;
 					if((stringCodesWithPeriods.last & periodCode) == periodCode, {
 						//if the previous character has full stop, add another one
 						stringCodesWithPeriods.add(periodCode);
@@ -265,14 +262,14 @@ XTouch7segment : XTouchSysexComponent {
 						//if previous character is something else, add period to id
 						stringCodesWithPeriods.add((stringCodesWithPeriods.pop & periodCode.bitNot) + periodCode);
 					});
-					stringCodesWithPeriods.postln;
+					// stringCodesWithPeriods.postln;
 				}, {
 					//if it's the first character, then just put full stop in
 					stringCodesWithPeriods.add(periodCode)
 				})
 			})
 		});
-		"stringCodesWithPeriods: ".post; stringCodesWithPeriods.postln;
+		// "stringCodesWithPeriods: ".post; stringCodesWithPeriods.postln;
 		// periodArrays = [0!numPeriodsPerPeriodMessage, 0!numPeriodsPerPeriodMessage];
 		allPeriods = 0!numCharacters;
 		stringCodesWithPeriods.do({|code, inc|
@@ -280,13 +277,13 @@ XTouch7segment : XTouchSysexComponent {
 				allPeriods[inc] = 1;
 			});
 		});
-		"allPeriods: ".post; allPeriods.postln;
+		// "allPeriods: ".post; allPeriods.postln;
 		// periodArrays = allPeriods.clump((numCharacters/numPeriodMessages).asInteger);
 		periodArrays = [allPeriods[..(numCharacersInFirstCodeMessage-1)], allPeriods[numCharacersInFirstCodeMessage..]];
 		periodArrays = periodArrays.collect({|arr| arr.reverse}); //little-endian
 		periodPositionCodes = periodArrays.collect({|arr| arr.convertDigits(2)});
 
-		"periodPositionCodes: ".post; periodPositionCodes.postln;
+		// "periodPositionCodes: ".post; periodPositionCodes.postln;
 
 		stringCodes = List();
 		//now strip periods from stringCodesWithPeriods
@@ -303,7 +300,7 @@ XTouch7segment : XTouchSysexComponent {
 		});
 
 		stringCodes = stringCodes.asArray.extend(numCharacters, codes.fromChar($ ));
-		"stringCodes: ".post; stringCodes.postln;
+		// "stringCodes: ".post; stringCodes.postln;
 
 		this.prUpdate;
 	}

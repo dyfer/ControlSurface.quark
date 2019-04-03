@@ -2,6 +2,7 @@ ControlSurfaceDevice {
 	var <midiOut, <midiIn; //copyArgs
 	var <components;
 	var <>presetName;
+	var <deviceInfo;
 	var <idDict;
 	var <inEndPoint, <outEndPoint;
 	var <>allowOverwritingIDs = true;
@@ -45,6 +46,7 @@ ControlSurfaceDevice {
 			this.initMIDI(initMIDI);
 		});
 		idDict = IdentityDictionary();
+		deviceInfo = IdentityDictionary().know_(true);
 	}
 
 	initMIDI {|connectAll = true|
@@ -69,10 +71,10 @@ ControlSurfaceDevice {
 
 	//override methods
 	doesNotUnderstand { |selector ... args|
-		selector.postln;
-		selector.class.postln;
-		idDict.postln;
-		"idDict[selector]: ".postln; idDict[selector].postln;
+		// selector.postln;
+		// selector.class.postln;
+		// idDict.postln;
+		// "idDict[selector]: ".postln; idDict[selector].postln;
 		if (idDict[selector].notNil) {
 			^idDict[selector];//.value(*args);
 		} {
@@ -218,6 +220,7 @@ ControlSurfaceDevice {
 								format("%: NOT overwriting componetnt ID: %", this.class.name, newID).warn;
 							})
 						}, {
+							postf("%: adding % at selector .%\n", this.class.name, who, newID);
 							idDict[newID] = who;
 						});
 					});
@@ -576,9 +579,9 @@ CsEncoder : CsSlider { // endless encoder
 
 ControlSurfaceSysexComponent : ControlSurfaceComponent {
 	var <>sysexHeader;
-	var sysexStart, sysexEnd;
+	var <sysexStart, <sysexEnd;
 	*new {
-		^super.new().initSysexComponent;
+		^super.new.initSysexComponent;
 	}
 
 	initSysexComponent {
@@ -588,19 +591,22 @@ ControlSurfaceSysexComponent : ControlSurfaceComponent {
 
 	sendSysex { | data |
 		var sysexCommand;
-		"data:".post; data.postln;
+		// "data:".post; data.postln;
 		// "sysexHeader: ".post; sysexHeader.postln;
-		[sysexStart, sysexHeader, data, sysexEnd].postln;
+		// [sysexStart, sysexHeader, data, sysexEnd].postln;
 		sysexCommand = sysexStart.asArray ++
 		sysexHeader.asArray ++
 		data.asArray ++
 		sysexEnd.asArray;
 		sysexCommand = sysexCommand.as(Int8Array);
-		"sysexCommand".postln;
-		sysexCommand.dump;
+		// "sysexCommand".postln;
+		// sysexCommand.dump;
 		if(midiOut.notNil, {
 			if(post.asBoolean, {(this.class.name ++ " sending SysEx:").scatList(sysexCommand.collect({|item| item.asHexString(2)})).postln});
 			midiOut.sysex(sysexCommand);
 		});
 	}
+
+	midiIn_ {} //for compatibility with other components
+	updateResponders {} //for compatibility with other components
 }
