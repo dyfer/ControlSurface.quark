@@ -249,7 +249,7 @@ ControlSurfaceDevice {
 }
 
 
-CsDevice : ControlSurfaceDevice {} //alias
+CSDevice : ControlSurfaceDevice {} //alias
 
 ControlSurfaceComponent { //not sure we need this, maybe in the future when we have non-midi control surfaces?
 	var <>midiOut;
@@ -261,12 +261,16 @@ ControlSurfaceComponent { //not sure we need this, maybe in the future when we h
 		^super.new;
 	}
 
-	midiIn_ { this.subclassResponsibility(thisMethod) }
+	midiIn_ {|val|
+		midiIn = val;
+	}
 
 	id_ {|idArg|
 		id = idArg;
 		this.changed(\id);
 	}
+
+	updateResponders {} //for compatibility with other components
 
 }
 
@@ -374,7 +378,7 @@ ControlSurfaceMidiComponent : ControlSurfaceComponent {
 
 }
 
-CsSimpleButton : ControlSurfaceMidiComponent{ //momentary button
+CSSimpleButton : ControlSurfaceMidiComponent{ //momentary button
 	*new { | ccNum = 0, chan = 0, msgType = \note, action, receivesMessages = false, updateHardwareStateOnInput = false |
 		^super.new(ccNum, chan, msgType, action).initSimpleButton(receivesMessages, updateHardwareStateOnInput);
 	}
@@ -385,7 +389,7 @@ CsSimpleButton : ControlSurfaceMidiComponent{ //momentary button
 	}
 }
 
-CsButton : CsSimpleButton{ //universal button
+CSButton : CSSimpleButton{ //universal button
 	var <>triggerMidiValue = 0; //this can be a number to match, or a function that will be passed incoming midi value and should return a boolean, e.g. {|val| val!0}
 	var <states; //states shoul be an array of arrays, in format [["name0", updateCcVal], ["name1", updateCcVal]]
 	var <isMultistate = false;
@@ -412,7 +416,7 @@ CsButton : CsSimpleButton{ //universal button
 	string_ {|string|
 		if(states.isNil) {
 			this.states = [[string]];
-			if(this.class.name == \CsButton, { //do not warn from subclasses
+			if(this.class.name == \CSButton, { //do not warn from subclasses
 				format("%: setting a string makes the button multistate\n", this.class.name).warn;
 			});
 		} {
@@ -478,7 +482,7 @@ CsButton : CsSimpleButton{ //universal button
 }
 
 
-CsMultistateButton : CsButton{ //multistate button
+CSMultistateButton : CSButton{ //multistate button
 	*new { | ccNum = 0, chan = 0, msgType = \note, action, receivesMessages = false, updateHardwareStateOnInput = false |
 		^super.new(ccNum, chan, msgType, action, receivesMessages, updateHardwareStateOnInput).initMultistate;
 	}
@@ -501,7 +505,7 @@ CsMultistateButton : CsButton{ //multistate button
 
 
 
-CsToggle : CsMultistateButton{ //two-state toggle button
+CSToggle : CSMultistateButton{ //two-state toggle button
 	*new { | ccNum = 0, chan = 0, msgType = \note, action, receivesMessages = false, updateHardwareStateOnInput = false |
 		^super.new(ccNum, chan, msgType, action, receivesMessages, updateHardwareStateOnInput).initToggle;
 	}
@@ -514,7 +518,7 @@ CsToggle : CsMultistateButton{ //two-state toggle button
 
 
 
-CsSlider : ControlSurfaceMidiComponent{
+CSSlider : ControlSurfaceMidiComponent{
 	*new { | ccNum = 0, chan = 0, action, receivesMessages = false, updateHardwareStateOnInput = false |
 		^super.new(ccNum, chan, \control, action, receivesMessages, updateHardwareStateOnInput).initSlider(receivesMessages, updateHardwareStateOnInput);
 	}
@@ -526,9 +530,9 @@ CsSlider : ControlSurfaceMidiComponent{
 	}
 }
 
-CsKnob : CsSlider {} //alias
+CSKnob : CSSlider {} //alias
 
-CsEncoder : CsSlider { // endless encoder
+CSEncoder : CSSlider { // endless encoder
 	var <defaultIncrementDecrementFunction; //increments by step size above threshold, decrements below threslod
 	var <>thresholdMidiValue = 63;
 	var <>incrementDecrementFunction; //this function is being passed this object
@@ -606,7 +610,4 @@ ControlSurfaceSysexComponent : ControlSurfaceComponent {
 			midiOut.sysex(sysexCommand);
 		});
 	}
-
-	midiIn_ {} //for compatibility with other components
-	updateResponders {} //for compatibility with other components
 }
