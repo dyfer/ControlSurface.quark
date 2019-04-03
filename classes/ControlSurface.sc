@@ -30,7 +30,6 @@ ControlSurfaceDevice {
 		^newObj;
 	}
 
-
 	*loadPreset {|name, initMIDI = true|
 		//eventually check for valid name
 		^this.load(presetsFullPath +/+ name ++ presetsExtension, initMIDI)
@@ -98,6 +97,7 @@ ControlSurfaceDevice {
 		name !? {this.presetName = name};
 		presetName !? {
 			name = name.asString; //probably should be made filename-friendly here
+			format("%: saving preset inside the Quark folder. It will prevent the Quark from updating, unless changes are pushed to the git repository!", this.class.name).warn;
 			this.save(presetsFullPath +/+ name ++ presetsExtension, overwrite);
 		}
 	}
@@ -382,83 +382,123 @@ CsSimpleButton : ControlSurfaceMidiComponent{ //momentary button
 	}
 }
 
-
-CsButton : CsSimpleButton{ //multistate button
+CsButton : CsSimpleButton{ //universal button
 	var <>triggerMidiValue = 0; //this can be a number to match, or a function that will be passed incoming midi value and should return a boolean, e.g. {|val| val!0}
 	var <states; //states shoul be an array of arrays, in format [["name0", updateCcVal], ["name1", updateCcVal]]
+	var <isMultistate = false;
 	*new { | ccNum = 0, chan = 0, msgType = \note, action, receivesMessages = false, updateHardwareStateOnInput = false |
-		^super.new(ccNum, chan, msgType, action, receivesMessages, updateHardwareStateOnInput).initButton;
+		^super.new(ccNum, chan, msgType, action, receivesMessages, updateHardwareStateOnInput);
 	}
 
-	initButton {
-		value = 0;
-	}
-
-	controlSpec_ {|spec|
-		"ControlSpec is not supported in a Button".warn;
-	}
+	// controlSpec_ {|spec|
+	// 	"ControlSpec is not supported in a Button".warn;
+	// }
 
 	states_ { arg stateArray;
+		if(states.isNil && value.isNil, {value = 0});
 		states = stateArray;
+		isMultistate = states.notNil;
 	}
 
 	string {
 		var str;
-		states.notNil !? {str = states[value.asInteger][0]};
+		states !? {str = states[value.asInteger][0]};
 		^str;
 	}
 
 	string_ {|string|
 		if(states.isNil) {
 			this.states = [[string]];
+			if(this.class.name == \CsButton, { //do not warn from subclasses
+				format("%: setting a string makes the button multistate\n", this.class.name).warn;
+			});
 		} {
-			states[this.value][0] = string;
-			this.states = states;
+			states[value][0] = string;
+			// this.states = states;
 		}
 	}
 
+	makeToggle {
+		this.states = [["", 0], ["", 127]];
+	}
+
+	makeSimple {
+		this.states = nil;
+	}
+
 	setUpdateCcVal { //overwrite HW value for non-momentar mode
-		updateCcVal = try{states[value][1]};
-		// updateCcVal ?? {updateCcVal = midiValue}; //default to last input midi value; not useful?
-		updateCcVal ?? {updateCcVal = 0}; //default to last input midi value; not useful?
+		if(isMultistate, {
+			updateCcVal = try{states[value][1]};
+			// updateCcVal ?? {updateCcVal = midiValue}; //default to last input midi value; not useful?
+			updateCcVal ?? {updateCcVal = 0}; //default to 0
+		}, {
+			^super.setUpdateCcVal
+		});
 	}
 
 	setValue {|val, fireAction = false, updateHardware = false, useSpec = false, updateMidiValue = false | //sets value
 		var triggerMe;
-		if(updateMidiValue, {
-			midiValue = val; //always direct value
-			//process midi
-			if(triggerMidiValue.isKindOf(SimpleNumber), {
-				triggerMe = val == triggerMidiValue;
+		if(isMultistate, {
+			if(updateMidiValue, {
+				midiValue = val; //always direct value
+				//process midi
+				if(triggerMidiValue.isKindOf(SimpleNumber), {
+					triggerMe = val == triggerMidiValue;
+				}, {
+					triggerMe = triggerMidiValue.(val)
+				});
+				if(triggerMe, {
+					if(value.isNil || states.isNil, {
+						value = 0;
+					}, {
+						value = (value + 1) % states.size;
+					});
+				});
 			}, {
-				triggerMe = triggerMidiValue.(val)
-			});
-			if(triggerMe, {
 				if(value.isNil || states.isNil, {
 					value = 0;
 				}, {
-					value = (value + 1) % states.size;
+					value = (val.asInteger);
+					states !? {value = value.min(states.size)};
 				});
+				triggerMe = true;
+			});
+			if(triggerMe, {
+				if(fireAction, {action.(this)});
+				if(updateHardware, {this.updateHardwareValue});
+				this.changed(\value, value);
 			});
 		}, {
-			if(value.isNil || states.isNil, {
-				value = 0;
-			}, {
-				value = (val.asInteger);
-				states !? {value = value.min(states.size)};
-			});
-			triggerMe = true;
-		});
-		if(triggerMe, {
-			if(fireAction, {action.(this)});
-			if(updateHardware, {this.updateHardwareValue});
-			this.changed(\value, value);
+			^super.setValue(val, fireAction, updateHardware, useSpec, updateMidiValue)
 		});
 	}
 }
 
 
-CsToggle : CsButton{ //two-state toggle button
+CsMultistateButton : CsButton{ //multistate button
+	*new { | ccNum = 0, chan = 0, msgType = \note, action, receivesMessages = false, updateHardwareStateOnInput = false |
+		^super.new(ccNum, chan, msgType, action, receivesMessages, updateHardwareStateOnInput).initMultistate;
+	}
+
+	initMultistate {
+		value = 0;
+		isMultistate = true;
+	}
+
+	controlSpec_ {|spec|
+		// only because we don't use it for anything
+		"ControlSpec is not supported in a MultistateButton".warn;
+	}
+
+	states_ { arg stateArray;
+		states = stateArray;
+	}
+
+}
+
+
+
+CsToggle : CsMultistateButton{ //two-state toggle button
 	*new { | ccNum = 0, chan = 0, msgType = \note, action, receivesMessages = false, updateHardwareStateOnInput = false |
 		^super.new(ccNum, chan, msgType, action, receivesMessages, updateHardwareStateOnInput).initToggle;
 	}
