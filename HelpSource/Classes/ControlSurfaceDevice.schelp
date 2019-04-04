@@ -1,256 +1,240 @@
 TITLE:: ControlSurfaceDevice
 summary:: Interface with physical control surfaces
 categories:: External Control > MIDI, Control Surface
-related:: Classes/CsButton, Classes/CsSlider, Classes/CsKnob, Classes/CsEncoder
+related:: Classes/CSButton, Classes/CSSlider, Classes/CSKnob, Classes/CSEncoder, Classes/CSSimpleButton, Classes/CSMultistateButton, Classes/CSToggle, Classes/XTouchLCD, Classes/XTouch7segment
 
 DESCRIPTION::
-(put long description here)
+
+The strong::ControlSurface:: Quark provides an interface to communicate with MIDI control surfaces that feature buttons, knobs, sliders, displays, etc.
+
+The basic building block of such interface is one of the subclasses of code::ControlSurfaceComponent::, like link::Classes/CSButton::, link::Classes/CSSlider::, link::Classes/XTouchLCD:: etc. allowing to communicate with a given emphasis::component::.
+While these classes can be used individually, it is convenient to group them into a emphasis::device:: allowing access to all controls from one place.
+
+code::ControlSurfaceDevice:: acts as a container for code::ControlSurfaceComponent::s, allowing storing and recalling configuration for the whole device, setting MIDI ports, as well as accessing components by an code::id::.
 
 
 CLASSMETHODS::
 
-METHOD:: presetsExtension
-(describe method here)
-
-returns:: (describe returnvalue here)
-
-METHOD:: initClass
-(describe method here)
-
-returns:: (describe returnvalue here)
-
-METHOD:: throwErrorOnDoesNotUnderstand
-(describe method here)
-
-returns:: (describe returnvalue here)
-
-METHOD:: loadPreset
-(describe method here)
-
-ARGUMENT:: name
-(describe argument here)
-
-ARGUMENT:: initMIDI
-(describe argument here)
-
-returns:: (describe returnvalue here)
-
 METHOD:: new
-(describe method here)
+Create new instance
 
 ARGUMENT:: midiOut
-(describe argument here)
+A code::MIDIOut:: or code::MIDIEndPoint::. Can also be set later.
 
 ARGUMENT:: midiIn
-(describe argument here)
+A code::MIDIEndPoint::. Can also be set later.
 
 ARGUMENT:: initMIDI
-(describe argument here)
+If code::true::, MIDI client will be initialized and all inputs will be connected.
 
-returns:: (describe returnvalue here)
+returns:: a code::ControlSurfaceDevice::
 
-METHOD:: presetsPath
-(describe method here)
 
-returns:: (describe returnvalue here)
+METHOD:: loadPreset
+Load configuration for a given device from a preset, stored inside this quark.
+
+ARGUMENT:: name
+name of the preset (see link::#*listPresets::)
+
+ARGUMENT:: initMIDI
+If code::true::, MIDI client will be initialized and all inputs will be connected.
+
+returns:: a new instance of code::ControlSurfaceDevice::, configured for use with a chosen device
 
 METHOD:: load
-(describe method here)
+Load configuration for a given device from file. See link::#*loadPreset::
 
 ARGUMENT:: path
-(describe argument here)
+full path to a file
 
-ARGUMENT:: initMIDI
-(describe argument here)
-
-returns:: (describe returnvalue here)
 
 METHOD:: listPresets
-(describe method here)
+List all presets included with this Quark.
 
-returns:: (describe returnvalue here)
+returns:: An array of names
+
+
+METHOD:: throwErrorOnDoesNotUnderstand
+When code::true:: (default), not recognized method will cause throwing an error. When code::false::, only warning will be posted.
+
+Components added to this code::ControlSurfaceDevice:: can be given an code::id::, which makes them accessible under pseudo-methods. This parameter defines behavior for when a method is not recognized neither as a class method, nor pseudo-method pointing to a component.
+
+
+private:: presetsExtension
+
+private:: initClass
+
+private:: presetsPath
+
 
 
 INSTANCEMETHODS::
 
-METHOD:: deviceInfo
-(describe method here)
-
-returns:: (describe returnvalue here)
-
-METHOD:: initAfterLoad
-(describe method here)
-
-ARGUMENT:: initMIDI
-(describe argument here)
-
-returns:: (describe returnvalue here)
-
-METHOD:: updateAllMidiOut
-(describe method here)
-
-returns:: (describe returnvalue here)
-
-METHOD:: update
-(describe method here)
-
-ARGUMENT:: who
-(describe argument here)
-
-ARGUMENT:: what
-(describe argument here)
-
-ARGUMENT:: args
-(describe argument here)
-
-returns:: (describe returnvalue here)
-
-METHOD:: updateAllResponders
-(describe method here)
-
-returns:: (describe returnvalue here)
-
-METHOD:: save
-(describe method here)
-
-ARGUMENT:: path
-(describe argument here)
-
-ARGUMENT:: overwrite
-(describe argument here)
-
-returns:: (describe returnvalue here)
-
-METHOD:: tryInitMidi
-(describe method here)
-
-returns:: (describe returnvalue here)
-
-METHOD:: prUpdateComponents
-(describe method here)
-
-returns:: (describe returnvalue here)
-
-METHOD:: allowOverwritingIDs
-(describe method here)
-
-returns:: (describe returnvalue here)
-
-METHOD:: init
-(describe method here)
-
-ARGUMENT:: initMIDI
-(describe argument here)
-
-returns:: (describe returnvalue here)
-
-METHOD:: initMIDI
-(describe method here)
-
-ARGUMENT:: connectAll
-(describe argument here)
-
-returns:: (describe returnvalue here)
-
-METHOD:: free
-(describe method here)
-
-returns:: (describe returnvalue here)
-
-METHOD:: doesNotUnderstand
-(describe method here)
-
-ARGUMENT:: selector
-(describe argument here)
-
-ARGUMENT::  ... args
-(describe argument here)
-
-returns:: (describe returnvalue here)
-
-METHOD:: collectIDs
-(describe method here)
-
-returns:: (describe returnvalue here)
-
-METHOD:: componentArray
-(describe method here)
-
-returns:: (describe returnvalue here)
-
-METHOD:: idDict
-(describe method here)
-
-returns:: (describe returnvalue here)
-
-METHOD:: savePreset
-(describe method here)
-
-ARGUMENT:: name
-(describe argument here)
-
-ARGUMENT:: overwrite
-(describe argument here)
-
-returns:: (describe returnvalue here)
-
 METHOD:: components
-(describe method here)
+The main method to add components to the instance of the class. See examples below.
 
 ARGUMENT:: componentCollection
-(describe argument here)
+This can be any collection up to 3 levels deep. A dictionary of arrays or dictionary of dictionaries are reasonable choices.
 
-returns:: (describe returnvalue here)
+
+METHOD:: free
+Free all resources.
+
+code::.free:: is called on all of the components.
+
+
+private:: initAfterLoad
+
+private:: updateAllMidiOut
+
+private:: update
+
+private:: updateAllResponders
+
+METHOD:: save
+Save current component configuration to a file
+
+ARGUMENT:: path
+full path to a file
+
+ARGUMENT:: overwrite
+If the file exists and this is code::true::, it will be overwritten.
+
+METHOD:: deviceInfo
+
+returns:: A dictionary that can be populated with information about the device. Stored with a configuration/preset.
+
+
+private:: tryInitMidi
+
+private:: prUpdateComponents
+
+METHOD:: allowOverwritingIDs
+When a component is given an ID, this class adds a pseudo-method allowing direct access to this component. In case there are duplicated IDs and this is code::true::, the new ones will overwrite the old ones under this id/method name.
+
+
+private:: init
+
+private:: initMIDI
+
+
+
+private:: doesNotUnderstand
+
+
+private:: collectIDs
+
+private:: componentArray
+
+private:: idDict
+
+METHOD:: savePreset
+Save current component configuration to a preset file. For development purposes only.
+note::This will save the condiguration inside the Quark folder structure and will interfere with updating the quark, or may be lost if the quark is re-downloaded.::
+
+ARGUMENT:: name
+Name to save the preset under.
+
+ARGUMENT:: overwrite
+Overwrite if exists
+
 
 METHOD:: presetName
-(describe method here)
+Get/set a preset name (for saving)
 
-returns:: (describe returnvalue here)
 
-METHOD:: addToAllAsDependant
-(describe method here)
+private:: addToAllAsDependant
 
-returns:: (describe returnvalue here)
 
 METHOD:: inEndPoint
-(describe method here)
 
-returns:: (describe returnvalue here)
+returns:: an instance of input code::MIDIEndPoint::, if set
 
 METHOD:: midiOut
-(describe method here)
-
 ARGUMENT:: val
-(describe argument here)
+A code::MIDIOut:: or code::MIDIEndPoint::. Will set all components.
 
-returns:: (describe returnvalue here)
+returns:: an instance of code::MIDIOut::, if set
 
 METHOD:: midiIn
-(describe method here)
 
 ARGUMENT:: val
-(describe argument here)
+A code::MIDIEndPoint::. Will set all components.
 
-returns:: (describe returnvalue here)
+returns:: an instance of code::MIDIEndPoint::, if set
 
-METHOD:: updateAllMidiIn
-(describe method here)
+private:: updateAllMidiIn
 
-returns:: (describe returnvalue here)
-
-METHOD:: updateAllMidi
-(describe method here)
-
-returns:: (describe returnvalue here)
+private:: updateAllMidi
 
 METHOD:: outEndPoint
-(describe method here)
-
-returns:: (describe returnvalue here)
+returns:: an instance of output code::MIDIEndPoint::, if set
 
 
 EXAMPLES::
 
 code::
-(some example code)
+//load from a preset
+d = CSDevice.loadPreset("XTouchOne_noteRelative");
+
+//midi should be set up automatically, but if not
+d.midiIn_(MIDIIn.findPort("X-Touch One", ""));
+d.midiOut_(MIDIOut.newByName("X-Touch One", ""));
+
+//inspect components
+d.components;
+d.components.keys;
+
+//access componenets
+d.components[\encoderRight].action_({|val| "Encoder ".post; val.value.postln});
+
+d.components[\slider][0].action_({|val| "slider ".post; val.value.postln});
+d.components[\slider][0].value_(1.0.rand);
+
+//set and id
+d.components[\lcd].id = \lcd
+d.lcd.string_(22.0.rand);
+d.lcd.background_(Color.rand);
+d.lcd.id = nil; //unset
+
+//free;
+d.free;
+
+
+//alternatively, set up manually
+d = CSDevice();
+
+d.midiIn_(MIDIIn.findPort("X-Touch One", ""));
+d.midiOut_(MIDIOut.newByName("X-Touch One", ""));//.latency_(0));
+d.deviceInfo[\manufacturer] = "Behringer";
+d.deviceInfo[\model] = "XTouch One";
+d.deviceInfo[\version] = "1.04";
+d.deviceInfo[\description] = "Set up for note-relative mode; slider and top encoder also have push-buttons";
+d.presetName_("XTouchOne_noteRelative");
+
+(
+d.components_(
+	(
+		\buttons0: 6.collect({|inc| CSButton(1 + inc, 0, \note, nil, true, true)}),
+		\buttons1: 6.collect({|inc| CSButton(7 + inc, 0, \note, nil, true, true)}),
+		\buttons2: 7.collect({|inc| CSButton(13 + inc, 0, \note, nil, true, true)}),
+		\buttonsTransport: 6.collect({|inc| CSButton(20 + inc, 0, \note, nil, true, true)}),
+		\buttonsBank: 2.collect({|inc| CSButton(25 + inc, 0, \note, nil, true, true)}),
+		\buttonsChannel: 2.collect({|inc| CSButton(27 + inc, 0, \note, nil, true, true)}),
+		\buttonScrub: CSButton(29, 0, \note, nil, true, true),
+		\buttonsBotton: ().putPairs([\top, \left, \center, \right, \bottom].collect({|name, inc| [name, CSButton(30 + inc, 0, \note, nil, true, true)]}).flat),
+		\slider: [CSSlider(70, 0, nil, true, false), CSButton(110, 0, \note, nil, false, false)],
+		\encoderTop: [CSEncoder(80, 0, nil, true, true, 64), CSButton(0, 0, \note, nil, false, false)],
+		\encoderRight: CSEncoder(88, 0, nil, true, true, 64),
+		\lcd: XTouchLCD(nil, 0x41),
+		\led7seg: XTouch7seg(nil, 0x41)
+	)
+)
+)
+
+//for development - save as a preset
+d.savePreset("XTouchOne2_noteRelative");
+
+d.free;
+
 ::
