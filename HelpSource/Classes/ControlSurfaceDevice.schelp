@@ -47,6 +47,11 @@ Load configuration for a given device from file. See link::#*loadPreset::
 ARGUMENT:: path
 full path to a file
 
+ARGUMENT:: initMIDI
+If code::true::, MIDI client will be initialized and all inputs will be connected.
+
+returns:: a new instance of code::ControlSurfaceDevice::, configured for use with a chosen device
+
 
 METHOD:: listPresets
 List all presets included with this Quark.
@@ -100,10 +105,6 @@ full path to a file
 ARGUMENT:: overwrite
 If the file exists and this is code::true::, it will be overwritten.
 
-METHOD:: deviceInfo
-
-returns:: A dictionary that can be populated with information about the device. Stored with a configuration/preset.
-
 
 private:: tryInitMidi
 
@@ -128,23 +129,32 @@ private:: componentArray
 
 private:: idDict
 
+METHOD:: deviceInfo
+
+returns:: A dictionary that can be populated with information about the device. Stored with a configuration/preset.
+
+METHOD:: presetName
+Get/set a preset name (for saving)
+
 METHOD:: savePreset
 Save current component configuration to a preset file. For development purposes only.
-note::This will save the condiguration inside the Quark folder structure and will interfere with updating the quark, or may be lost if the quark is re-downloaded.::
+note::This will save the configuration inside the Quark folder structure and will interfere with updating the quark, or may be lost if the quark is re-downloaded.::
 
 ARGUMENT:: name
-Name to save the preset under.
+Name to save the preset under. If nil, link::#-presetName:: will be used
 
 ARGUMENT:: overwrite
 Overwrite if exists
 
 
-METHOD:: presetName
-Get/set a preset name (for saving)
 
 
-private:: addToAllAsDependant
+METHOD:: midiIn
 
+ARGUMENT:: val
+A code::MIDIEndPoint::. Will set all components.
+
+returns:: an instance of code::MIDIEndPoint::, if set
 
 METHOD:: inEndPoint
 
@@ -156,19 +166,17 @@ A code::MIDIOut:: or code::MIDIEndPoint::. Will set all components.
 
 returns:: an instance of code::MIDIOut::, if set
 
-METHOD:: midiIn
+METHOD:: outEndPoint
+returns:: an instance of output code::MIDIEndPoint::, if set
 
-ARGUMENT:: val
-A code::MIDIEndPoint::. Will set all components.
 
-returns:: an instance of code::MIDIEndPoint::, if set
 
+
+private:: addToAllAsDependant
 private:: updateAllMidiIn
 
 private:: updateAllMidi
 
-METHOD:: outEndPoint
-returns:: an instance of output code::MIDIEndPoint::, if set
 
 
 EXAMPLES::
