@@ -57,7 +57,7 @@ returns:: An array of names
 METHOD:: throwErrorOnDoesNotUnderstand
 When code::true:: (default), not recognized method will cause throwing an error. When code::false::, only warning will be posted.
 
-Components added to this code::ControlSurfaceDevice:: can be given an code::id::, which makes them accessible under pseudo-methods. This parameter defines behavior for when a method is not recognized neither as a class method, nor pseudo-method pointing to a component.
+Components added to this code::ControlSurfaceDevice:: can be given an code::id::, which makes them accessible under pseudo-methods. This parameter defines behavior for when a method is not recognized neither as a instance method, nor pseudo-method pointing to a component.
 
 
 private:: presetsExtension
