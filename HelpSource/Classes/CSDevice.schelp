@@ -1,0 +1,8 @@
+TITLE:: CSDevice
+summary:: Interface with physical control surfaces
+categories:: External Control > MIDI, Control Surface
+related:: Classes/ControlSurfaceDevice, Classes/CSButton, Classes/CSSlider, Classes/CSKnob, Classes/CSEncoder
+
+DESCRIPTION::
+This is an alias for a link::Classes/ControlSurfaceDevice::.
+
