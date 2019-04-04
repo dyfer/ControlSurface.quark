@@ -5,7 +5,7 @@
 This package allows interacting with physical control surfaces using MIDI
 
 Almost any control surface sending MIDI control/note messages can be manually set up. Moreover, presets for the following devices are included:
-- Behringer XTouch One [WIP]
+- Behringer XTouch One
 
 Presets for the following devices are planned:
 - Behringer XTouch Mini
