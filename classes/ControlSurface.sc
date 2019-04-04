@@ -96,11 +96,12 @@ ControlSurfaceDevice {
 	}
 
 	savePreset {|name, overwrite = false|
-		name !? {this.presetName = name};
+		name !? {presetName = name};
 		presetName !? {
-			name = name.asString; //probably should be made filename-friendly here
+			var nameToSave;
+			nameToSave = presetName.asString; //probably should be made filename-friendly here
 			format("%: saving preset inside the Quark folder. It will prevent the Quark from updating, unless changes are pushed to the git repository!", this.class.name).warn;
-			this.save(presetsFullPath +/+ name ++ presetsExtension, overwrite);
+			this.save(presetsFullPath +/+ nameToSave ++ presetsExtension, overwrite);
 		}
 	}
 
