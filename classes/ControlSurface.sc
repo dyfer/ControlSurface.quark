@@ -252,7 +252,7 @@ ControlSurfaceDevice {
 
 CSDevice : ControlSurfaceDevice {} //alias
 
-ControlSurfaceMidiComponent { //not sure we need this, maybe in the future when we have non-midi control surfaces?
+ControlSurfaceMidiComponent {
 	var <>midiOut;
 	var <midiIn;
 	var <>post = false;
@@ -271,7 +271,7 @@ ControlSurfaceMidiComponent { //not sure we need this, maybe in the future when 
 		this.changed(\id);
 	}
 
-	updateResponders {} //for compatibility with other components
+	updateResponders {} //for compatibility with ControlSurfaceDevice
 
 }
 
