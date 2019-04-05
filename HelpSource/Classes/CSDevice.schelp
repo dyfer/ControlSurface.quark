@@ -1,6 +1,6 @@
 TITLE:: CSDevice
 summary:: Interface with physical control surfaces
-categories:: External Control > MIDI, Control Surface
+categories:: External Control>MIDI>Control Surface, Control Surface
 related:: Classes/ControlSurfaceDevice, Classes/CSButton, Classes/CSSlider, Classes/CSKnob, Classes/CSEncoder
 
 DESCRIPTION::

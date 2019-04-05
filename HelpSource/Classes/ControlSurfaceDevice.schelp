@@ -1,6 +1,6 @@
 TITLE:: ControlSurfaceDevice
 summary:: Interface with physical control surfaces
-categories:: External Control > MIDI, Control Surface
+categories:: External Control>MIDI>Control Surface, Control Surface
 related:: Classes/CSButton, Classes/CSSlider, Classes/CSKnob, Classes/CSEncoder, Classes/CSSimpleButton, Classes/CSMultistateButton, Classes/CSToggle, Classes/XTouchLCD, Classes/XTouch7segment
 
 DESCRIPTION::
