@@ -10,7 +10,7 @@ The strong::ControlSurface:: Quark provides an interface to communicate with MID
 The basic building block of such interface is one of the subclasses of code::ControlSurfaceComponent::, like link::Classes/CSButton::, link::Classes/CSSlider::, link::Classes/XTouchLCD:: etc. allowing to communicate with a given emphasis::component::.
 While these classes can be used individually, it is convenient to group them into a emphasis::device:: allowing access to all controls from one place.
 
-code::ControlSurfaceDevice:: acts as a container for code::ControlSurfaceComponent::s, allowing storing and recalling configuration for the whole device, setting MIDI ports, as well as accessing components by an code::id::.
+code::ControlSurfaceDevice:: acts as a container for code::ControlSurfaceComponent::s, allowing storing and recalling configuration for the whole device, setting MIDI ports, as well as accessing components by their code::id::.
 
 
 CLASSMETHODS::
@@ -62,7 +62,7 @@ returns:: An array of names
 METHOD:: throwErrorOnDoesNotUnderstand
 When code::true:: (default), not recognized method will cause throwing an error. When code::false::, only warning will be posted.
 
-Components added to this code::ControlSurfaceDevice:: can be given an code::id::, which makes them accessible under pseudo-methods. This parameter defines behavior for when a method is not recognized neither as a instance method, nor pseudo-method pointing to a component.
+Components added to this code::ControlSurfaceDevice:: can be given an code::id::, which makes them accessible under pseudo-methods. This parameter defines behavior for when a method is not recognized neither as an instance method, nor a pseudo-method pointing to a component.
 
 
 private:: presetsExtension
@@ -76,10 +76,12 @@ private:: presetsPath
 INSTANCEMETHODS::
 
 METHOD:: components
-The main method to add components to the instance of the class. See examples below.
+The main method to add components to the instance of the class. See link::#Manual setup::.
 
 ARGUMENT:: componentCollection
 This can be any collection up to 3 levels deep. A dictionary of arrays or dictionary of dictionaries are reasonable choices.
+
+note:: Compoment collection as a whole may be redefined at any time, without further action needed. However, after creating the compoment collection, adding or removing individual elements is not recommended, since you need to manually "register" them by running link::#-prUpdateComponents::. Also, you need to remember to free the individual component before removing it from the collection.::
 
 
 METHOD:: free
@@ -108,7 +110,6 @@ If the file exists and this is code::true::, it will be overwritten.
 
 private:: tryInitMidi
 
-private:: prUpdateComponents
 
 METHOD:: allowOverwritingIDs
 When a component is given an ID, this class adds a pseudo-method allowing direct access to this component. In case there are duplicated IDs and this is code::true::, the new ones will overwrite the old ones under this id/method name.
@@ -146,9 +147,6 @@ Name to save the preset under. If nil, link::#-presetName:: will be used
 ARGUMENT:: overwrite
 Overwrite if exists
 
-
-
-
 METHOD:: midiIn
 
 ARGUMENT:: val
@@ -170,6 +168,8 @@ METHOD:: outEndPoint
 returns:: an instance of output code::MIDIEndPoint::, if set
 
 
+METHOD:: prUpdateComponents
+In case individual members of the component collection are added or swapped, run this method to "register" them with this code::ControlSurfaceDevice:: object.
 
 
 private:: addToAllAsDependant
@@ -180,12 +180,13 @@ private:: updateAllMidi
 
 
 EXAMPLES::
-
+subsection:: Using a Preset
 code::
-//load from a preset
 d = CSDevice.loadPreset("XTouchOne_noteRelative");
 
-//midi should be set up automatically, but if not
+//midi should set up automatically, but if not, try:
+MIDIClient.init;
+MIDIIn.connectAll;
 d.midiIn_(MIDIIn.findPort("X-Touch One", ""));
 d.midiOut_(MIDIOut.newByName("X-Touch One", ""));
 
@@ -193,7 +194,7 @@ d.midiOut_(MIDIOut.newByName("X-Touch One", ""));
 d.components;
 d.components.keys;
 
-//access componenets
+//access componenets - set actions
 d.components[\encoderRight].action_({|val| "Encoder ".post; val.value.postln});
 
 d.components[\slider][0].action_({|val| "slider ".post; val.value.postln});
@@ -201,41 +202,52 @@ d.components[\slider][0].value_(1.0.rand);
 
 //set and id
 d.components[\lcd].id = \lcd
+//use id as a pseudo-method
 d.lcd.string_(22.0.rand);
 d.lcd.background_(Color.rand);
 d.lcd.id = nil; //unset
 
 //free;
 d.free;
+::
 
+subsection:: Manual setup
+code::
 
-//alternatively, set up manually
 d = CSDevice();
 
+//init midi
+MIDIClient.init;
+MIDIIn.connectAll;
+
+//set ports
 d.midiIn_(MIDIIn.findPort("X-Touch One", ""));
-d.midiOut_(MIDIOut.newByName("X-Touch One", ""));//.latency_(0));
+d.midiOut_(MIDIOut.newByName("X-Touch One", ""));
+
+//for the preset - provide information
 d.deviceInfo[\manufacturer] = "Behringer";
 d.deviceInfo[\model] = "XTouch One";
 d.deviceInfo[\version] = "1.04";
 d.deviceInfo[\description] = "Set up for note-relative mode; slider and top encoder also have push-buttons";
 d.presetName_("XTouchOne_noteRelative");
 
+//add components
 (
 d.components_(
 	(
-		\buttons0: 6.collect({|inc| CSButton(1 + inc, 0, \note, nil, true, true)}),
-		\buttons1: 6.collect({|inc| CSButton(7 + inc, 0, \note, nil, true, true)}),
-		\buttons2: 7.collect({|inc| CSButton(13 + inc, 0, \note, nil, true, true)}),
-		\buttonsTransport: 6.collect({|inc| CSButton(20 + inc, 0, \note, nil, true, true)}),
-		\buttonsBank: 2.collect({|inc| CSButton(25 + inc, 0, \note, nil, true, true)}),
-		\buttonsChannel: 2.collect({|inc| CSButton(27 + inc, 0, \note, nil, true, true)}),
-		\buttonScrub: CSButton(29, 0, \note, nil, true, true),
-		\buttonsBotton: ().putPairs([\top, \left, \center, \right, \bottom].collect({|name, inc| [name, CSButton(30 + inc, 0, \note, nil, true, true)]}).flat),
-		\slider: [CSSlider(70, 0, nil, true, false), CSButton(110, 0, \note, nil, false, false)],
-		\encoderTop: [CSEncoder(80, 0, nil, true, true, 64), CSButton(0, 0, \note, nil, false, false)],
-		\encoderRight: CSEncoder(88, 0, nil, true, true, 64),
-		\lcd: XTouchLCD(nil, 0x41),
-		\led7seg: XTouch7seg(nil, 0x41)
+		\buttons0: 6.collect({|inc| CSButton(1 + inc, 0, \note, nil, true, true)}), //top row
+		\buttons1: 6.collect({|inc| CSButton(7 + inc, 0, \note, nil, true, true)}), //2nd row
+		\buttons2: 7.collect({|inc| CSButton(13 + inc, 0, \note, nil, true, true)}), //3rd row
+		\buttonsTransport: 6.collect({|inc| CSButton(20 + inc, 0, \note, nil, true, true)}), // ◀️◀️, ►► etc
+		\buttonsBank: 2.collect({|inc| CSButton(25 + inc, 0, \note, nil, true, true)}), //left, below transport
+		\buttonsChannel: 2.collect({|inc| CSButton(27 + inc, 0, \note, nil, true, true)}), //farther below
+		\buttonScrub: CSButton(29, 0, \note, nil, true, true), //single button on the right
+		\buttonsBotton: ().putPairs([\top, \left, \center, \right, \bottom].collect({|name, inc| [name, CSButton(30 + inc, 0, \note, nil, true, true)]}).flat), //5-button cluster - 4 directions and one in the center
+		\slider: [CSSlider(70, 0, nil, true, false), CSButton(110, 0, \note, nil, false, false)], //motorized slider; "button" action when touched
+		\encoderTop: [CSEncoder(80, 0, nil, true, true, 64), CSButton(0, 0, \note, nil, false, false)], //above LCD display; "button" action when pressed
+		\encoderRight: CSEncoder(88, 0, nil, true, true, 64), //large rotary encoder on the right
+		\lcd: XTouchLCD(nil, 0x41), //LCD above fader - 2 alphanumerical lines (14 characters)
+		\led7seg: XTouch7seg(nil, 0x41) //LED display on top (12 characters, mostly numbers)
 	)
 )
 )
@@ -243,6 +255,6 @@ d.components_(
 //for development - save as a preset
 d.savePreset("XTouchOne2_noteRelative");
 
+//at the end - free resources
 d.free;
-
 ::
