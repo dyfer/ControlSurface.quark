@@ -89,5 +89,16 @@ private:: setValue
 EXAMPLES::
 
 code::
-(some example code)
+(
+MIDIClient.init;
+MIDIIn.connectAll;
+p = CSButton(1, 0, \note, {|val| postf("got %\n", val.value)}, true, true); //first button on XTouch One
+
+//update LED state on the button in XTouch One
+m = MIDIOut.newByName("X-Touch One", "").latency_(0);
+p.midiOut_(m);
+
+//free
+p.free;
+)
 ::

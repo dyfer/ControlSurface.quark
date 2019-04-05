@@ -79,5 +79,17 @@ private:: setValue
 EXAMPLES::
 
 code::
-//
+MIDIClient.init;
+MIDIIn.connectAll;
+p = CSEncoder(80, 0, {|val| postf("got %\n", val.value)}, true, true); //top encoder in relative mode (endless encoder)
+
+// update state - light up LED ring
+m = MIDIOut.newByName("X-Touch One", "").latency_(0);
+p.midiOut_(m);
+
+//see increment/decrement function
+p.defaultIncrementDecrementFunction.postcs;
+
+//free
+p.free;
 ::

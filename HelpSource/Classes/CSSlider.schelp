@@ -67,5 +67,16 @@ private:: initSlider
 EXAMPLES::
 
 code::
-//
+MIDIClient.init;
+MIDIIn.connectAll;
+p = CSSlider(70, 0, {|val| postf("got %\n", val.value)}, true, false); //motorized fader on XTouch One
+// update state
+m = MIDIOut.newByName("X-Touch One", "").latency_(0);
+p.midiOut_(m);
+p.value_(1);
+p.value_(0);
+p.value_(0.5);
+
+//free
+p.free;
 ::

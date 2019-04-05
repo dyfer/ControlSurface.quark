@@ -64,5 +64,13 @@ private:: initSimpleButton
 EXAMPLES::
 
 code::
-//
+MIDIClient.init;
+MIDIIn.connectAll;
+p = CSSimpleButton(1, 0, \note, {|val| postf("got %\n", val.value)}, true, true);
+//to update LED on the button in XTouch One;
+m = MIDIOut.newByName("X-Touch One", "").latency_(0);
+p.midiOut_(m);
+
+//free
+p.free;
 ::
