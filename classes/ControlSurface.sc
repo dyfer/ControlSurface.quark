@@ -252,7 +252,7 @@ ControlSurfaceDevice {
 
 CSDevice : ControlSurfaceDevice {} //alias
 
-ControlSurfaceComponent { //not sure we need this, maybe in the future when we have non-midi control surfaces?
+ControlSurfaceMidiComponent { //not sure we need this, maybe in the future when we have non-midi control surfaces?
 	var <>midiOut;
 	var <midiIn;
 	var <>post = false;
@@ -276,7 +276,7 @@ ControlSurfaceComponent { //not sure we need this, maybe in the future when we h
 }
 
 
-ControlSurfaceMidiComponent : ControlSurfaceComponent {
+ControlSurfaceBaseComponent : ControlSurfaceMidiComponent {
 	var <ccNum, <chan, <msgType, <>action;
 	var <>receivesMessages = false, <>updateHardwareStateOnInput = false;
 	var <>updateCcNum;
@@ -379,7 +379,7 @@ ControlSurfaceMidiComponent : ControlSurfaceComponent {
 
 }
 
-CSSimpleButton : ControlSurfaceMidiComponent{ //momentary button
+CSSimpleButton : ControlSurfaceBaseComponent{ //momentary button
 	*new { | ccNum = 0, chan = 0, msgType = \note, action, receivesMessages = false, updateHardwareStateOnInput = false |
 		^super.new(ccNum, chan, msgType, action).initSimpleButton(receivesMessages, updateHardwareStateOnInput);
 	}
@@ -519,7 +519,7 @@ CSToggle : CSMultistateButton{ //two-state toggle button
 
 
 
-CSSlider : ControlSurfaceMidiComponent{
+CSSlider : ControlSurfaceBaseComponent{
 	*new { | ccNum = 0, chan = 0, action, receivesMessages = false, updateHardwareStateOnInput = false |
 		^super.new(ccNum, chan, \control, action, receivesMessages, updateHardwareStateOnInput).initSlider(receivesMessages, updateHardwareStateOnInput);
 	}
@@ -582,7 +582,7 @@ CSEncoder : CSSlider { // endless encoder
 
 
 
-ControlSurfaceSysexComponent : ControlSurfaceComponent {
+ControlSurfaceSysexComponent : ControlSurfaceMidiComponent {
 	var <>sysexHeader;
 	var <sysexStart, <sysexEnd;
 	*new {
