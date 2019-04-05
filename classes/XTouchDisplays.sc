@@ -38,13 +38,13 @@ XTouchLCD : XTouchSysexComponent {
 	var <allColors;
 	var numberOfCharactersOnTheDisplay = 14;
 	var blinkRoutine, tempInverts, tempString, tempBackground;
-	*new { | midiOut, modelID, lcdID |
+	*new { | midiOut, modelID, lcdID = 0 |
 		^super.new( modelID ).initLCD( midiOut, lcdID );
 	}
 
 	initLCD { | midiOutArg, lcdIDarg |
 		// "in LCD init".postln;
-		lcdID = lcdIDarg ? 0;
+		lcdID = lcdIDarg;
 		midiOut = midiOutArg;
 		//colors from sysex specs
 		allColors = [Color.black, Color.red, Color.green, Color.yellow, Color.blue, Color.magenta, Color.cyan, Color.white]; //color indices from the manual
@@ -189,6 +189,10 @@ XTouchLCD : XTouchSysexComponent {
 		tempBackground !? {this.background_(tempBackground)};
 		tempBackground = nil;
 	}
+
+	free {
+		this.stopBlinking
+	}
 }
 
 // from X-Touch One manual, segment diplay
@@ -228,7 +232,7 @@ XTouch7segment : XTouchSysexComponent {
 		this.sendSysex(data);
 	}
 
-	align_ {|val|
+	align_ {|val| //NOT IMPLEMENTED
 		val = val.asSymbol;
 		if([\left, \center, \right].includes(val), {
 			align = val;
