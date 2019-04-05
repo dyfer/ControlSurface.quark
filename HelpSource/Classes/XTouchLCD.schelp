@@ -1,0 +1,116 @@
+TITLE:: XTouchLCD
+summary:: LCD controller for Behringer XTouch devices
+categories:: External Control>MIDI>Control Surface, Control Surface
+related:: Classes/CSButton, Classes/CSSlider, Classes/CSKnob, Classes/CSEncoder, Classes/CSSimpleButton, Classes/CSMultistateButton, Classes/CSToggle, Classes/XTouchLCD, Classes/XTouch7segment
+
+
+DESCRIPTION::
+XTouchLCD communicates with LCD display on Behringer XTouch devices (XTouch, XTouch One, XTouch Extender). Currently tested only with XTouch One.
+
+
+CLASSMETHODS::
+
+METHOD:: new
+
+ARGUMENT:: midiOut
+An instance of MIDIOut.
+
+ARGUMENT:: modelID
+MIDI SysEx device ID or a code::\symbol:: indicating XTouch model: (code::\one:: or code::\extender::). XTouch One is 0x41 (but manual says 0x40). XTouch Extender should be 0x42 according to the manual, but it is not tested. Someone online posted that it works with 0x15.
+
+ARGUMENT:: lcdID
+For devices with multiple displays, indicate the display ID.
+
+
+INSTANCEMETHODS::
+
+METHOD:: string
+Get/set a code::String:: to be displayed on the LCD. It will be clipped to 14 characters (2 lines of 7).
+
+METHOD:: stringUpper
+Like link::#-string::, but only for the upper line.
+
+METHOD:: stringLower
+Like link::#-string::, but only for the lower line.
+
+METHOD:: background
+Get/set background color.
+note::XTouch can display only limited number of colors: black, red, green, yellow, blue, magenta, cyan, and white. You can set this parameter to any color you want, and the closest one will be automatically chosen to set the device to.::
+
+ARGUMENT:: color
+An instance of code::Color::.
+
+
+METHOD:: invertColors
+Invert foreground and background. This is not strictly color inversion, but this is how the manual refers to it.
+
+METHOD:: invertColorsUpper
+Like link::#-invertColors::, but only for the upper line.
+
+METHOD:: invertColorsLower
+Like link::#-invertColors::, but only for the lower line.
+
+
+
+METHOD:: blink
+Start blinking the screen.
+
+ARGUMENT:: freq
+Blink frequency (Hz)
+
+ARGUMENT:: type
+Blink type: code::\invert::, code::\background::, or code::\string::.
+
+
+METHOD:: stopBlinking
+Stop blinking routine.
+
+
+METHOD:: lcdID
+returns:: lcdID (for multiple displays in one device)
+
+
+METHOD:: free
+Stop blinking, that's all.
+
+
+private:: initLCD
+private:: prPrepareColorAndInvertData
+private:: componentID
+private:: colorID
+private:: allColors
+private:: prUpdate
+private:: prGetColorID
+
+
+EXAMPLES::
+
+code::
+MIDIClient.init;
+m = MIDIOut.newByName("X-Touch One", "").latency_(0);
+t = XTouchLCD(m, \one);
+
+t.string_("Hello!");
+t.string = 14.collect({rrand($a.ascii, $z.ascii)});
+
+t.background_(Color.white);
+t.background_(Color.black);
+t.background_(Color.green);
+t.background_(Color.blue);
+
+t.background_(Color.rand); //random
+t.background_(Color.rand.test); //random, compare on this screen
+
+t.invertColorsUpper_(true);
+t.invertColorsUpper_(false);
+t.invertColorsLower_(true);
+t.invertColorsLower_(false);
+
+t.blink(1, \invert)
+t.blink(0)
+t.blink(1, \background)
+t.blink(1, \string)
+t.stopBlinking;
+
+f.free; //stop blinking
+::

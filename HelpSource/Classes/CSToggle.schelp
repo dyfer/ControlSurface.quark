@@ -1,0 +1,72 @@
+TITLE:: CSToggle
+summary:: Toggle button for Control Surface
+categories:: External Control>MIDI>Control Surface, Control Surface
+related:: Classes/CSButton, Classes/CSSlider, Classes/CSKnob, Classes/CSEncoder, Classes/CSSimpleButton, Classes/CSMultistateButton, Classes/CSToggle, Classes/XTouchLCD, Classes/XTouch7segment
+
+DESCRIPTION::
+CSMultistateButton responds to MIDI hardware acting as a toggle.
+
+
+CLASSMETHODS::
+
+METHOD:: new
+
+ARGUMENT:: ccNum
+Control/note number
+
+ARGUMENT:: chan
+MIDI channel
+
+ARGUMENT:: msgType
+code::\control::, code::\noteOn::, code::\noteOff:: or code::\note:: (responding to both note on and off)
+
+ARGUMENT:: action
+Action to fire on incoming MIDI message. The function will be passed this object.
+
+ARGUMENT:: receivesMessages
+Whether the hardware can also receive message at this channel/control number. Useful for buttons with LEDs, motorized faders, etc.
+
+ARGUMENT:: updateHardwareStateOnInput
+If code::true::, MIDI message will be sent to hardware to reflect current state when the control message comes in. Useful when hardware indicator is decoupled from the input device (e.g. when LED in a button does not light up automatically when the button is pressed, or when encoder's LED ring does not light up automatically when the encoder is turned)
+
+
+INSTANCEMETHODS::
+
+copymethod:: ControlSurfaceBaseComponent -value
+
+copymethod:: ControlSurfaceBaseComponent -action
+
+copymethod:: ControlSurfaceBaseComponent -valueAction
+
+copymethod:: ControlSurfaceBaseComponent -free
+
+copymethod:: ControlSurfaceBaseComponent -id
+
+copymethod:: ControlSurfaceBaseComponent -midiIn
+
+copymethod:: ControlSurfaceBaseComponent -midiOut
+
+copymethod:: ControlSurfaceBaseComponent -chan
+
+copymethod:: ControlSurfaceBaseComponent -ccNum
+
+copymethod:: ControlSurfaceBaseComponent -msgType
+
+copymethod:: ControlSurfaceBaseComponent -maxValueForSpec
+
+copymethod:: ControlSurfaceBaseComponent -updateHardwareStateOnInput
+
+copymethod:: CSButton -string
+
+copymethod:: CSButton -triggerMidiValue
+
+copymethod:: CSButton -states
+
+private:: initToggle
+
+
+EXAMPLES::
+
+code::
+//
+::

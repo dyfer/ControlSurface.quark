@@ -1,0 +1,52 @@
+TITLE:: XTouch7segment
+summary:: LED 7-segment display controller for Behringer XTouch devices
+categories:: External Control>MIDI>Control Surface, Control Surface
+related:: Classes/CSButton, Classes/CSSlider, Classes/CSKnob, Classes/CSEncoder, Classes/CSSimpleButton, Classes/CSMultistateButton, Classes/CSToggle, Classes/XTouchLCD, Classes/XTouch7segment
+
+DESCRIPTION::
+XTouch7segment communicates with LED 7-segment display on Behringer XTouch devices (XTouch, XTouch One). Currently tested only with XTouch One.
+
+7-segment display is designed to display only numbers and periods. While displaying all basic ASCII characters is implemented, the representation of non-numbers is less than ideal.
+
+
+CLASSMETHODS::
+
+METHOD:: new
+
+ARGUMENT:: midiOut
+An instance of MIDIOut.
+
+ARGUMENT:: modelID
+MIDI SysEx device ID or a code::\symbol:: indicating XTouch model: (code::\one:: or code::\extender::). XTouch One is 0x41 (but manual says 0x40). XTouch Extender should be 0x42 according to the manual, but it is not tested. Someone online posted that it works with 0x15.
+
+
+INSTANCEMETHODS::
+
+METHOD:: string
+Get/set a code::String:: to be displayed on the LCD. It will be clipped to 12 characters.
+note::Periods following other characters are displayed within the same character and thus do not count towards the character limit. See examples.::
+
+
+METHOD:: align
+NOT IMPLEMENTED! get/set string alignment.
+
+
+private:: init7segment
+private:: prUpdate
+private:: periodPositionCodes
+private:: stringCodes
+private:: componentID
+
+EXAMPLES::
+
+code::
+MIDIClient.init;
+m = MIDIOut.newByName("X-Touch One", "").latency_(0);
+u = XTouch7segment(m, \one);
+
+u.string_("  hello");
+u.string_("123456789101");
+u.string_("1.2.3.4.5.6.7.8.9.1.0.1."); //note that periods don't count toward the character limit when following another character
+u.string_("..........0.1."); //but they do when not following another character
+u.string_("sr48000 -90.1");
+::

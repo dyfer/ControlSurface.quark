@@ -1,0 +1,93 @@
+TITLE:: CSButton
+summary:: Button for Control Surface
+categories:: External Control>MIDI>Control Surface, Control Surface
+related:: Classes/CSButton, Classes/CSSlider, Classes/CSKnob, Classes/CSEncoder, Classes/CSSimpleButton, Classes/CSMultistateButton, Classes/CSToggle, Classes/XTouchLCD, Classes/XTouch7segment
+
+DESCRIPTION::
+CSButton responds to MIDI hardware acting as momentary, toggle, or multistate button.
+
+CLASSMETHODS::
+
+METHOD:: new
+
+ARGUMENT:: ccNum
+Control/note number
+
+ARGUMENT:: chan
+MIDI channel
+
+ARGUMENT:: msgType
+code::\control::, code::\noteOn::, code::\noteOff:: or code::\note:: (responding to both note on and off)
+
+ARGUMENT:: action
+Action to fire on incoming MIDI message. The function will be passed this object.
+
+ARGUMENT:: receivesMessages
+Whether the hardware can also receive message at this channel/control number. Useful for buttons with LEDs, motorized faders, etc.
+
+ARGUMENT:: updateHardwareStateOnInput
+If code::true::, MIDI message will be sent to hardware to reflect current state when the control message comes in. Useful when hardware indicator is decoupled from the input device (e.g. when LED in a button does not light up automatically when the button is pressed, or when encoder's LED ring does not light up automatically when the encoder is turned)
+
+
+INSTANCEMETHODS::
+
+copymethod:: ControlSurfaceBaseComponent -value
+
+copymethod:: ControlSurfaceBaseComponent -action
+
+copymethod:: ControlSurfaceBaseComponent -valueAction
+
+copymethod:: ControlSurfaceBaseComponent -free
+
+copymethod:: ControlSurfaceBaseComponent -id
+
+copymethod:: ControlSurfaceBaseComponent -controlSpec
+
+copymethod:: ControlSurfaceBaseComponent -midiIn
+
+copymethod:: ControlSurfaceBaseComponent -midiOut
+
+copymethod:: ControlSurfaceBaseComponent -chan
+
+copymethod:: ControlSurfaceBaseComponent -ccNum
+
+copymethod:: ControlSurfaceBaseComponent -msgType
+
+copymethod:: ControlSurfaceBaseComponent -maxValueForSpec
+
+copymethod:: ControlSurfaceBaseComponent -updateHardwareStateOnInput
+
+METHOD:: states
+Get/set states. Setting to code::nil:: will make the button react list code::CSSimpleButton::
+
+ARGUMENT:: stateArray
+Array in the following format: code::[["stateName", midiVal], ["otherName", otherMidiVal]]::
+note::In the stateArray, midi value refers to the value sent back to the device when a given state is activated, e.g. allows the LED in the button to light up for a given state::
+
+METHOD:: makeToggle
+Change the behavior of the button to have two states (on/off);
+
+METHOD:: makeSimple
+Change the behavior of the button to behave as momentary code::CSSimpleButton::.
+
+private:: isMultistate
+
+METHOD:: string
+
+ARGUMENT:: string
+new code::String:: for the current state
+
+returns:: The code::String:: associated with the current state.
+
+METHOD:: triggerMidiValue
+This can be a number to match, or a function that will be passed incoming midi value and should return a boolean, e.g. code::{|val| val!0}::. Defaults to code::0:: (button responds on release)
+
+private:: setUpdateCcVal
+private:: setValue
+
+
+EXAMPLES::
+
+code::
+(some example code)
+::

@@ -1,0 +1,68 @@
+TITLE:: CSKnob
+summary:: Knob for Control Surface
+categories:: External Control>MIDI>Control Surface, Control Surface
+related:: Classes/CSButton, Classes/CSSlider, Classes/CSKnob, Classes/CSEncoder, Classes/CSSimpleButton, Classes/CSMultistateButton, Classes/CSToggle, Classes/XTouchLCD, Classes/XTouch7segment
+
+
+DESCRIPTION::
+CSKnob responds to MIDI messages from continuous controls like knobs. Currently the implementation is identical to link::Classes/CSSlider::.
+
+note:: By default, controlSpec is initialized to code::[0, 1].asSpec::, resulting in values in the 0.0-1.0 range, strong::not:: the default MIDI values 0-127.::
+
+
+CLASSMETHODS::
+
+METHOD:: new
+
+ARGUMENT:: ccNum
+Control number
+
+ARGUMENT:: chan
+MIDI channel
+
+ARGUMENT:: action
+Action to fire on incoming MIDI message. The function will be passed this object.
+
+ARGUMENT:: receivesMessages
+Whether the hardware can also receive message at this channel/control number. Useful for buttons with LEDs, motorized faders, etc.
+
+ARGUMENT:: updateHardwareStateOnInput
+If code::true::, MIDI message will be sent to hardware to reflect current state when the control message comes in. Useful when hardware indicator is decoupled from the input device (e.g. when LED in a button does not light up automatically when the button is pressed, or when encoder's LED ring does not light up automatically when the encoder is turned)
+
+
+INSTANCEMETHODS::
+
+copymethod:: ControlSurfaceBaseComponent -value
+
+copymethod:: ControlSurfaceBaseComponent -action
+
+copymethod:: ControlSurfaceBaseComponent -valueAction
+
+copymethod:: ControlSurfaceBaseComponent -free
+
+copymethod:: ControlSurfaceBaseComponent -id
+
+copymethod:: ControlSurfaceBaseComponent -controlSpec
+
+copymethod:: ControlSurfaceBaseComponent -midiIn
+
+copymethod:: ControlSurfaceBaseComponent -midiOut
+
+copymethod:: ControlSurfaceBaseComponent -chan
+
+copymethod:: ControlSurfaceBaseComponent -ccNum
+
+copymethod:: ControlSurfaceBaseComponent -msgType
+
+copymethod:: ControlSurfaceBaseComponent -maxValueForSpec
+
+copymethod:: ControlSurfaceBaseComponent -updateHardwareStateOnInput
+
+private:: initSlider
+
+
+EXAMPLES::
+
+code::
+//
+::

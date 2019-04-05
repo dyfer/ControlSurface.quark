@@ -1,0 +1,114 @@
+TITLE:: ControlSurfaceBaseComponent
+summary:: Superclass for Control Surface components
+categories:: External Control>MIDI>Control Surface, Control Surface
+related:: Classes/CSButton, Classes/CSSlider, Classes/CSKnob, Classes/CSEncoder, Classes/CSSimpleButton, Classes/CSMultistateButton, Classes/CSToggle, Classes/XTouchLCD, Classes/XTouch7segment
+
+DESCRIPTION::
+Superclass for Control Surface components.
+
+Part of the strong::ControlSurface:: Quark.
+
+
+CLASSMETHODS::
+
+METHOD:: new
+
+ARGUMENT:: ccNum
+Control/note number
+
+ARGUMENT:: chan
+MIDI channel
+
+ARGUMENT:: msgType
+code::\control::, code::\noteOn::, code::\noteOff:: or code::\note:: (responding to both note on and off)
+
+ARGUMENT:: action
+Action to fire on incoming MIDI message. The function will be passed this object.
+
+returns:: a code::ControlSurfaceBaseComponent::
+
+
+INSTANCEMETHODS::
+
+METHOD:: value
+Get/set the value of the component. If the component is able to provide feedback (with an LED, motorized fader etc.), it will reflect the value change.
+ARGUMENT:: val
+new value
+returns:: current value
+
+METHOD:: midiValue
+returns:: value as received from the MIDI device
+
+METHOD:: action
+Get/set action to be performed, when the MIDI message is received. The function is passed an instance of this object.
+code:: {|component| postf("my value is %\n", component.value)}::
+
+METHOD:: valueAction
+Set value and trigger action
+ARGUMENT:: val
+value to set
+
+METHOD:: free
+Free resources (responders etc.)
+
+METHOD:: id
+For use when this Component is registered with a link::Classes/ControlSurfaceDevice::. When id is set, this component can be accessed as a pseudo-method of the code::ControlSurfaceDevice::. See link::Classes/ControlSurfaceDevice#examples::.
+
+ARGUMENT:: idArg
+A code::Symbol:: for the new id.
+returns:: current ID.
+
+METHOD:: controlSpec
+Get/set a code::controlSpec::
+ARGUMENT:: spec
+new code::controlSpec::
+returns:: a code::controlSpec::
+
+METHOD:: midiIn
+Get/set a code::MIDIEndPoint:: for this component to respond to. If code::nil::, it will respond to message from all MIDI ports.
+
+METHOD:: midiOut
+Get/set an instance of code::MIDIOut::. Used only if hardware can respond to MIDI messages (motorized faders, LED indicators, state change etc).
+
+METHOD:: chan
+Get/set MIDI channel to for the message to respond to.
+ARGUMENT:: val
+new channel
+returns:: current channel
+
+METHOD:: ccNum
+Get/set controller/note number to respond to
+ARGUMENT:: val
+new controller number
+returns:: current controller number
+
+METHOD:: msgType
+returns:: message type to respond to
+
+
+METHOD:: maxValueForSpec
+For MIDI value going back to the hardware, controlSpec will be mapped to values between 0 and maxValueForSpec. Defaults to 127.
+
+
+METHOD:: updateHardwareStateOnInput
+If code::true::, MIDI message will be sent to hardware to reflect current state when the control message comes in. Useful when hardware indicator is decoupled from the input device (e.g. when LED in a button does not light up automatically when the button is pressed, or when encoder's LED ring does not light up automatically when the encoder is turned)
+
+METHOD:: post
+If code::true::, MIDI messages will be also posted when sending. Implemented only by some subclasses.
+
+
+private:: updateCcVal
+private:: updateCcNum
+private:: initMidiComponent
+private:: updateHardwareValue
+private:: updateResponders
+private:: receivesMessages
+private:: setValue
+private:: responders
+private:: setUpdateCcVal
+
+
+EXAMPLES::
+code::
+::
+::
