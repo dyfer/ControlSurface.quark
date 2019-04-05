@@ -262,8 +262,9 @@ ControlSurfaceMidiComponent {
 		^super.new;
 	}
 
-	midiIn_ {|val|
-		midiIn = val;
+	midiIn_ {|midiInArg|
+		midiIn = midiInArg;
+		this.updateResponders;
 	}
 
 	id_ {|idArg|
@@ -318,11 +319,6 @@ ControlSurfaceBaseComponent : ControlSurfaceMidiComponent {
 
 	chan_ {|val|
 		chan = val;
-		this.updateResponders;
-	}
-
-	midiIn_ {|midiInArg|
-		midiInArg !? {midiIn = midiInArg};
 		this.updateResponders;
 	}
 
